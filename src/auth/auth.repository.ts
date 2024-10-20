@@ -18,4 +18,9 @@ export class AuthRepository {
     const user = this.userRepository.create(userData);
     return this.userRepository.save(user);
   }
+
+  async updateUserData(userId: string, userData: Partial<User>): Promise<User> {
+    const user = this.userRepository.update({id: userId}, userData);
+    return this.userRepository.findOne({ where: { id: userId } });
+  }
 }

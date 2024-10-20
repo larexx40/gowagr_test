@@ -5,6 +5,7 @@ import {
     BeforeInsert,
     CreateDateColumn,
     UpdateDateColumn,
+    Index,
   } from 'typeorm';
   
   @Entity()
@@ -12,6 +13,7 @@ import {
     @PrimaryGeneratedColumn('uuid')
     id: string;
   
+    @Index()
     @Column({ unique: true })
     email: string;
 
@@ -21,6 +23,7 @@ import {
     @Column({ nullable: false })
     lastname: string;
 
+    @Index()
     @Column({ unique: true, nullable: false })
     username: string;
 
@@ -29,21 +32,26 @@ import {
   
     @Column({ default: false })
     isVerified: boolean;
+
+    @Column({ nullable: false , default: 0 })
+    balance: number;
   
     @Column({ nullable: true })
-    verificationOtp: string;
+    verificationOtp: number;
+
+    @Column({ nullable: true })
+    otpExpiresIn: Date;
+    
+    @Column({ nullable: true })
+    passwordResetOtp: number;
   
     @Column({ nullable: true })
-    refreshToken: string;
+    passwordResetOtpExpiresIn: Date;
   
     @CreateDateColumn()
     createdAt: Date;
   
     @UpdateDateColumn()
     updatedAt: Date;
-  
-    // @BeforeInsert()
-    // async hashPassword() {
-    //   this.password = await bcrypt.hash(this.password, 10);
-    // }
+
 }

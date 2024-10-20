@@ -1,7 +1,9 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, SignupDto, VerifyAccountDto, ResetPasswordDto, VerifyResetOtpDto, RegenerateTokenDto } from './dto/auth.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -26,10 +28,7 @@ export class AuthController {
     return this.authService.resetPassword(resetPasswordDto);
   }
 
-  @Post('verify-reset-otp')
-  verifyResetOtp(@Body() verifyResetOtpDto: VerifyResetOtpDto) {
-    return this.authService.verifyResetOtp(verifyResetOtpDto);
-  }
+
 
   @Post('regenerate-token')
   regenerateToken(@Body() regenerateTokenDto: RegenerateTokenDto) {
