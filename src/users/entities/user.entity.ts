@@ -1,3 +1,4 @@
+import { Transaction } from 'src/transactions/entities/transaction.entity';
 import {
     Entity,
     Column,
@@ -6,6 +7,7 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     Index,
+    OneToMany,
   } from 'typeorm';
   
   @Entity()
@@ -53,5 +55,8 @@ import {
   
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @OneToMany(() => Transaction, (transaction) => transaction.initiatior)
+    transactions: Transaction[]; ;
 
 }
