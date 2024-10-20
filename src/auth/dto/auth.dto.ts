@@ -97,6 +97,16 @@ export class VerifyAccountDto {
     otp: number;
 }
 
+export class SendOtpDto {
+    @ApiProperty({
+        description: 'The user\'s email address',
+        example: 'user@example.com',
+    })
+    @IsNotEmpty({ message: 'Email is required' })
+    @IsEmail({}, { message: 'Email must be a valid email address' })
+    email: string;
+}
+
 export class ResetPasswordDto {
     @ApiProperty({
         description: 'The user\'s email address',

@@ -29,11 +29,16 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   @Get('profile')
-  getProfile(
+  async getProfile(
     @Req() req: RequestWithAuth
   ) {
     const userId = req.user.userId;
-    return this.usersService.getProfile(userId);
+    const user = await this.usersService.getProfile(userId);
+    return {
+      status: true,
+      message:"Profile fetched successfully",
+      data: user
+    }
   }
 
   /**
@@ -45,8 +50,13 @@ export class UsersController {
    */
   @Get('username/:username')
   @HttpCode(HttpStatus.OK)
-  getUserByUsername(@Param('username') username: string) {
-    return this.usersService.getUserByUsername(username);
+  async getUserByUsername(@Param('username') username: string) {
+    const user = await this.usersService.getUserByUsername(username);
+    return {
+      status: true,
+      message:"User fetched successfully",
+      data: user
+    }
   }
 
   /**
@@ -61,9 +71,14 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Patch('profile')
   @HttpCode(HttpStatus.OK)
-  updateProfile(@Req() req, @Body() updateProfileDto: UpdateProfileDto) {
+  async updateProfile(@Req() req, @Body() updateProfileDto: UpdateProfileDto) {
     const userId = req.user.id;
-    return this.usersService.updateProfile(userId, updateProfileDto);
+    const newUser = await this.usersService.updateProfile(userId, updateProfileDto);
+    return {
+      status: true,
+      message:"Profile updated successfully",
+      data: newUser
+    }
   }
 
 }
