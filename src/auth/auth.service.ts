@@ -16,6 +16,8 @@ export class AuthService {
    * 
    * @param {LoginDto} loginDto - The login credentials.
    * @returns {Promise<{ accessToken: string; refreshToken: string; user: User }>} - A promise containing tokens and user data.
+    * @throws {BadRequestException} - if account is not verified.
+    * @throws {BadRequestException} - for invalid credentials.
    */
   async login(loginDto: LoginDto): Promise<{ accessToken: string; refreshToken: string; user: User }> {
     const { email, password } = loginDto;
@@ -25,6 +27,8 @@ export class AuthService {
       throw new BadRequestException('Invalid credentials');
     }
 
+    if(!user.isVerified) throw new BadRequestException("Verify your account to login.")
+
     //payload to be encoded in jwt token
     const authPayload: AuthTokenPayload = {
       userId: user.id,
@@ -33,10 +37,10 @@ export class AuthService {
     };
 
     // Generate access token (valid for 1 day)
-    const accessToken = jwt.sign(authPayload, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
+    const accessToken = jwt.sign(authPayload, process.env.JWT_SECRET_ACCESS_KEY, { expiresIn: '1d' });
 
     // Generate refresh token (valid for 30 days)
-    const refreshToken = jwt.sign(authPayload, process.env.JWT_REFRESH_SECRET_KEY, { expiresIn: '30d' });
+    const refreshToken = jwt.sign(authPayload, process.env.JWT_SECRET_REFRESH_KEY, { expiresIn: '30d' });
 
     return { accessToken, refreshToken, user };
   }
@@ -46,6 +50,8 @@ export class AuthService {
    * 
    * @param {SignupDto} signupDto - The user signup information.
    * @returns {Promise<User>} - A promise with the created user data.
+   * @throws {BadRequestException} - if email already exist.
+    * @throws {BadRequestException} - if username already exist.
    */
   async signup(signupDto: SignupDto): Promise<User> {
     const { email, password, firstname, lastname, username } = signupDto;
@@ -116,10 +122,10 @@ export class AuthService {
     };
 
     // Generate access token (valid for 1 day)
-    const accessToken = jwt.sign(authPayload, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
+    const accessToken = jwt.sign(authPayload, process.env.JWT_SECRET_ACCESS_KEY, { expiresIn: '1d' });
 
     // Generate refresh token (valid for 30 days)
-    const refreshToken = jwt.sign(authPayload, process.env.JWT_REFRESH_SECRET_KEY, { expiresIn: '30d' });
+    const refreshToken = jwt.sign(authPayload, process.env.JWT_SECRET_REFRESH_KEY, { expiresIn: '30d' });
 
     return {
       user: updatedUser,
@@ -134,6 +140,7 @@ export class AuthService {
  * @param {SendOtpDto} resendOtpDto - Data Transfer Object containing the user's email.
  * @returns {Promise<User>} - The updated user entity with a new OTP.
  * @throws {NotFoundException} - Throws an error if the user is not found.
+ * @throws {BadRequestException} - Throws an error if account already verified.
  */
   async resendVerificationOtp(resendOtpDto: SendOtpDto): Promise<User> {
     const { email } = resendOtpDto;
@@ -141,6 +148,8 @@ export class AuthService {
     // Validate email and username
     const user = await this.authRepository.findByEmail(email);
     if (!user) throw new NotFoundException("User not found");
+
+    if(user.isVerified) throw new BadRequestException("Account already verified")
 
     // Generate verification OTP and expiry time
     const verificationOtp = generateOtp();
@@ -255,20 +264,28 @@ export class AuthService {
    * 
    * @param {RegenerateTokenDto} regenerateTokenDto - The refresh token information.
    * @returns {Promise<{ accessToken: string; refreshToken: string }>} - A promise containing the new tokens.
+ * @throws {BadRequestException} - Throws an error if invalid token.
    */
   async regenerateToken(regenerateTokenDto: RegenerateTokenDto): Promise<{ accessToken: string; refreshToken: string }> {
     const { refreshToken } = regenerateTokenDto;
 
-    const payload: AuthTokenPayload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET_KEY) as AuthTokenPayload;
+    // try {
+      // Verify the refresh token
+      const payload: AuthTokenPayload = jwt.verify(refreshToken, process.env.JWT_SECRET_REFRESH_KEY) as AuthTokenPayload;
 
-    const authPayload: AuthTokenPayload = {
-      userId: payload.userId,
-      email: payload.email,
-      username: payload.username,
-    };
+      const authPayload: AuthTokenPayload = {
+        userId: payload.userId,
+        email: payload.email,
+        username: payload.username,
+      };
 
-    // Generate new access token
-    const accessToken = jwt.sign(authPayload, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
-    return { accessToken, refreshToken }; // Return the new access token and the old refresh token
+      // Generate new access token
+      const accessToken = jwt.sign(authPayload, process.env.JWT_SECRET_ACCESS_KEY, { expiresIn: '1d' });
+
+      return { accessToken, refreshToken }; // Return the new access token and the old refresh token
+    // } catch (error) {
+    //   // Handle any errors that occur during token verification
+    //   throw new BadRequestException('Invalid refresh token');
+    // }
   }
 }

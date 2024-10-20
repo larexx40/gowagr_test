@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
     IsEmail,
     IsNotEmpty,
+    IsNumber,
     IsNumberString,
     IsOptional,
     IsString,
@@ -92,8 +93,8 @@ export class VerifyAccountDto {
         example: '123456',
     })
     @IsNotEmpty({ message: 'OTP is required' })
-    @IsNumberString({}, { message: 'OTP must be a valid number' })
-    @Length(6, 6, { message: 'OTP must be exactly 6 digits long' })
+    @IsNumber({}, { message: 'OTP must be a valid number' })
+    // @Length(6, 6, { message: 'OTP must be exactly 6 digits long' })
     otp: number;
 }
 

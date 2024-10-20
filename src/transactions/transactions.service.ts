@@ -20,6 +20,8 @@ export class TransactionService {
    * Deposit an amount to a user's account and record a transaction
    * @param userId - ID of the user making the deposit
    * @param amount - Amount to be deposited
+    * @throws {NotFoundException} - Throws an error if user not found.
+    * @throws {BadRequestException} - Throws an error if transaction cannot go through due to locking.
    */
   async deposit(userId: string, depositDto: DepositDto): Promise<Transaction> {
     const { amount } = depositDto;
@@ -39,7 +41,7 @@ export class TransactionService {
         .getOne();
 
       if (!lockedUser) {
-        throw new BadRequestException('Cannot perform operation at the moment.');
+        throw new BadRequestException('Cannot perform operation at the moment, please try again later.');
       }
 
       // Update the user's balance
@@ -50,8 +52,8 @@ export class TransactionService {
 
       // Record the deposit transaction
       const transaction = new Transaction();
-      transaction.initiatiorId = lockedUser.id;
-      transaction.initiatior = lockedUser;
+      transaction.initiatorId = lockedUser.id;
+      transaction.initiator= lockedUser;
       transaction.amount = amount;
       transaction.type = TransactionType.DEPOSIT;
       transaction.status = TransactionStatus.SUCCESS
@@ -65,6 +67,9 @@ export class TransactionService {
    * Transfers funds between two users using their usernames.
    * @param {TransferDto} transferDto - The transfer data.
    * @returns {Promise<Transaction>} - The created transfer transaction.
+    * @throws {NotFoundException} - Throws an error if sender/receiver not found.
+    * @throws {BadRequestException} - Throws an error if transaction cannot go through due to locking.
+    * @throws {BadRequestException} - Throws an error if sender has insufficiennt balance.
    */
   async transfer(userId: string, transferDto: TransferDto): Promise<Transaction> {
     const { recipientUsername, amount } = transferDto;
@@ -92,6 +97,7 @@ export class TransactionService {
         .where('user.id = :id', { id: recipient.id })
         .getOne();
 
+        if(!lockedRecipient || !lockedSender) throw new BadRequestException("Cannot perform operation at the moment, please try again later.")
       if (lockedSender.balance < amount) throw new BadRequestException('Insufficient balance');
 
       // Deduct amount from sender
@@ -104,8 +110,8 @@ export class TransactionService {
 
       // Record the transaction
       const transaction = new Transaction();
-      transaction.initiatiorId = sender.id;
-      transaction.initiatior = sender;
+      transaction.initiatorId = sender.id;
+      transaction.initiator = sender;
       transaction.recipientId = recipient.id;
       transaction.recipient = recipient;
       transaction.amount = amount;
@@ -133,8 +139,8 @@ export class TransactionService {
  */
   async getAllUserTransactions(
     userId: string,
-    page = 1,
-    limit = 10,
+    page: number,
+    limit: number,
     transactionType: TransactionType,
     transactionStatus: TransactionStatus,
     startDate: Date,
@@ -145,16 +151,16 @@ export class TransactionService {
     const queryBuilder = this.transactionRepository.createQueryBuilder('transaction');
 
     // Ensure the query checks transactions by userId or recipientId
-    queryBuilder.where('(transaction.initiatior = :userId OR transaction.recipientId = :userId)', { userId });
+    queryBuilder.where('(transaction.initiator = :userId OR transaction.recipientId = :userId)', { userId });
 
     // Optional filter by transaction type (e.g., DEPOSIT, TRANSFER)
     if (transactionType) {
-      queryBuilder.andWhere('transaction.transactionType = :transactionType', { transactionType });
+      queryBuilder.andWhere('transaction.type = :transactionType', { transactionType });
     }
 
     // Optional filter by transaction staus (e.g., SUCCESS, FAILED)
     if (transactionStatus) {
-      queryBuilder.andWhere('transaction.transactionType = :transactionType', { transactionType });
+      queryBuilder.andWhere('transaction.status = :transactionStatus', { transactionStatus });
     }
 
     // Optional date range filter
@@ -173,9 +179,11 @@ export class TransactionService {
     const totalCount = await queryBuilder.getCount();
 
     // Apply pagination with limit and skip
+    const skip = (page - 1) * limit || 0;
+    console.log("SKip: ",skip)
     queryBuilder
       .orderBy('transaction.createdAt', 'DESC') // Order by latest transaction
-      .skip((page - 1) * limit) // Offset results based on page number
+      .skip(skip) // Offset results based on page number
       .take(limit); // Limit the number of results
 
     const transactions = await queryBuilder.getMany();
