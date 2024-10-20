@@ -19,7 +19,7 @@ export const createRandomToken = (size: number) => {
 };
 
 /**
- * It checks if the current time is less than expire timw
+ * It checks if the current time is less than expire time.
  * @param {Date} expiresIn - The time when the OTP is expected to expire.
  * @returns A boolean value indicating whether the OTP has expired or not.
  */

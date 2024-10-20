@@ -10,6 +10,7 @@ async function bootstrap() {
     .setTitle('GoWagr Backend Engineering Test')
     .setDescription('A simple money transfer system RESTFUL API using NestJs ( with Typescript), PostgreSQL (TypeORM) by R.O.Olatunji')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

@@ -1,19 +1,31 @@
-import { IsOptional, IsEmail, IsString, MinLength } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateProfileDto {
+  @ApiProperty({
+    description: 'The user\'s first name',
+    example: 'Lanre',
+    required: false, 
+  })
   @IsOptional()
-  @IsEmail({}, { message: 'Email must be a valid email address' })
-  email?: string;
+  @IsString({ message: 'Firstname must be a valid string' })
+  firstname?: string;
 
+  @ApiProperty({
+    description: 'The user\'s last name',
+    example: 'Doe',
+    required: false, 
+  })
   @IsOptional()
-  @IsString({ message: 'Username must be a string' })
+  @IsString({ message: 'Lastname must be a valid string' })
+  lastname?: string;
+
+  @ApiProperty({
+    description: 'The user\'s username',
+    example: 'Lanre_doe',
+    required: false, 
+  })
+  @IsOptional()
+  @IsString({ message: 'Username must be a valid string' })
   username?: string;
-
-  @IsOptional()
-  @MinLength(6, { message: 'Password must be at least 6 characters long' })
-  password?: string;
-
-  @IsOptional()
-  @IsString({ message: 'Full name must be a string' })
-  fullName?: string;
 }

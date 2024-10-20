@@ -39,7 +39,7 @@ export class SignupDto {
 
     @ApiProperty({
         description: 'The user\'s first name',
-        example: 'John',
+        example: 'Lanre',
     })
     @IsNotEmpty({ message: 'First name is required' })
     @IsString({ message: 'Firstname must be a valid string' })
@@ -55,7 +55,7 @@ export class SignupDto {
 
     @ApiProperty({
         description: 'The user\'s username',
-        example: 'john_doe',
+        example: 'Lanre_doe',
     })
     @IsNotEmpty({ message: 'Username is required' })
     @IsString({ message: 'Username must be a valid string' })

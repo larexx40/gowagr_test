@@ -8,10 +8,19 @@ export class AuthRepository {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { email } });
+  }
+
+  async findUser(email: string, username: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: [
+        { email },
+        { username }
+      ]
+    });
   }
 
   async createUser(userData: Partial<User>): Promise<User> {
@@ -20,7 +29,12 @@ export class AuthRepository {
   }
 
   async updateUserData(userId: string, userData: Partial<User>): Promise<User> {
-    const user = this.userRepository.update({id: userId}, userData);
-    return this.userRepository.findOne({ where: { id: userId } });
+    const user = await this.userRepository.preload({
+      id: userId,
+      ...userData,
+    });
+
+    // Save the updated user data
+    return await this.userRepository.save(user);
   }
 }
