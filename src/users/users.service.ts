@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -14,14 +14,14 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
-  
+  ) { }
+
   /**
    * Fetches the authenticated user's profile by their ID.
    * 
    * @param userId - The ID of the user whose profile is to be fetched.
    * @returns A promise that resolves to the User object if found.
-   * @throws NotFoundException if the user with the given ID is not found.
+   * @throws {NotFoundException} if the user with the given ID is not found.
    */
   async getProfile(userId: string): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
@@ -36,7 +36,7 @@ export class UsersService {
    * 
    * @param username - The username of the user to be fetched.
    * @returns A promise that resolves to the User object if found.
-   * @throws NotFoundException if the user with the given username is not found.
+   * @throws {NotFoundException} if the user with the given username is not found.
    */
   async getUserByUsername(username: string): Promise<User> {
     const user = await this.userRepository.findOne({ where: { username } });
@@ -52,7 +52,8 @@ export class UsersService {
    * @param userId - The ID of the user whose profile is to be updated.
    * @param updateProfileDto - An object containing the new profile data.
    * @returns A promise that resolves to the updated User object.
-   * @throws NotFoundException if the user with the given ID is not found.
+   * @throws {NotFoundException} if the user with the given ID is not found.
+  * @throws {BadRequestException} - if username already exist.
    */
   async updateProfile(userId: string, updateProfileDto: UpdateProfileDto): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
@@ -70,7 +71,7 @@ export class UsersService {
         throw new ConflictException('Username already exists');
       }
     }
-    
+
     Object.assign(user, updateProfileDto);
     return this.userRepository.save(user);
   }

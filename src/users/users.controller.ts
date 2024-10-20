@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Http
 import { UsersService } from './users.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UpdateProfileDto } from './dto/user.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RequestWithAuth } from 'src/types/auth.type';
 
 /**
@@ -28,7 +28,10 @@ export class UsersController {
   @Get('profile')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
-  @Get('profile')
+  @ApiOperation({ summary: 'Fetch user profile' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Profile fetched successfully' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Missing, invalid or expired OTP.' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   async getProfile(
     @Req() req: RequestWithAuth
   ) {
@@ -50,6 +53,11 @@ export class UsersController {
    */
   @Get('username/:username')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Find user by username' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'User fetched successfully' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Missing, invalid or expired OTP.' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not with username not found' })
   async getUserByUsername(@Param('username') username: string) {
     const user = await this.usersService.getUserByUsername(username);
     return {
@@ -71,6 +79,12 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Patch('profile')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Update user profile' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Profile updated successfully' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Missing, invalid or expired OTP.' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'User with username already exist' })
   async updateProfile(@Req() req, @Body() updateProfileDto: UpdateProfileDto) {
     const userId = req.user.id;
     const newUser = await this.usersService.updateProfile(userId, updateProfileDto);
