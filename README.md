@@ -58,28 +58,28 @@ $ yarn run test
 ## Technologies Used
 
 ## [NestJS](https://github.com/nestjs/nest)
-![NestJS Logo](https://raw.githubusercontent.com/nestjs/docs/master/src/assets/logo-small.png)
+![NestJS Logo](https://docs.nestjs.com/assets/logo-small-gradient.svg)
 
 NestJS is a progressive Node.js framework for building efficient, reliable, and scalable server-side applications.
 
 ---
 
 ## [TypeScript](https://www.typescriptlang.org/)
-![TypeScript Logo](https://raw.githubusercontent.com/microsoft/TypeScript/main/logo/logo.png)
+![TypeScript Logo](https://static-production.npmjs.com/255a118f56f5346b97e56325a1217a16.svg)
 
 TypeScript is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale.
 
 ---
 
 ## [PostgreSQL](https://www.postgresql.org/)
-![PostgreSQL Logo](https://www.postgresql.org/media/img/about/pglogo.png)
+![PostgreSQL Logo](https://www.postgresql.org/media/img/about/press/elephant.png)
 
 PostgreSQL is a powerful, open-source object-relational database system with more than 15 years of active development.
 
 ---
 
 ## [TypeORM](https://github.com/typeorm/typeorm)
-![TypeORM Logo](https://typeorm.io/img/typeorm_logo.png)
+![TypeORM Logo](https://raw.githubusercontent.com/typeorm/typeorm/master/resources/logo_big.png)
 
 TypeORM is an ORM for TypeScript and JavaScript (ES7, ES6, ES5). It supports many databases, including PostgreSQL.
 
