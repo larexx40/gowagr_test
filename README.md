@@ -1,27 +1,3 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
 # Money Transfer System
 
 ## Description
@@ -58,28 +34,28 @@ $ yarn run test
 ## Technologies Used
 
 ## [NestJS](https://github.com/nestjs/nest)
-<img src="https://docs.nestjs.com/assets/logo-small-gradient.svg" alt="NestJS Logo" width="150" />
+<img src="https://docs.nestjs.com/assets/logo-small-gradient.svg" alt="NestJS Logo" width="120" />
 
 NestJS is a progressive Node.js framework for building efficient, reliable, and scalable server-side applications.
 
 ---
 
 ## [TypeScript](https://www.typescriptlang.org/)
-<img src="https://static-production.npmjs.com/255a118f56f5346b97e56325a1217a16.svg" alt="TypeScript Logo" width="150" />
+<img src="https://static-production.npmjs.com/255a118f56f5346b97e56325a1217a16.svg" alt="TypeScript Logo" width="120" />
 
 TypeScript is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale.
 
 ---
 
 ## [PostgreSQL](https://www.postgresql.org/)
-<img src="https://www.postgresql.org/media/img/about/press/elephant.png" alt="PostgreSQL Logo" width="150" />
+<img src="https://www.postgresql.org/media/img/about/press/elephant.png" alt="PostgreSQL Logo" width="120" />
 
 PostgreSQL is a powerful, open-source object-relational database system with more than 15 years of active development.
 
 ---
 
 ## [TypeORM](https://github.com/typeorm/typeorm)
-<img src="https://raw.githubusercontent.com/typeorm/typeorm/master/resources/logo_big.png" alt="TypeORM Logo" width="150" />
+<img src="https://raw.githubusercontent.com/typeorm/typeorm/master/resources/logo_big.png" alt="TypeORM Logo" width="120" />
 
 TypeORM is an ORM for TypeScript and JavaScript (ES7, ES6, ES5). It supports many databases, including PostgreSQL.
 
