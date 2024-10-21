@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
 </p>
 
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
@@ -15,24 +15,27 @@
 <a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
 <a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
 <a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
+  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
     <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
 </p>
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
+# Money Transfer System
+
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The Money Transfer System is a robust and secure application designed to facilitate user authentication, fund transfers, and transaction management. Built with [Nest](https://github.com/nestjs/nest), [TypeScript](https://www.typescriptlang.org/), and [PostgreSQL](https://www.postgresql.org/).
 
-## Project setup
+
+## Installation
 
 ```bash
 $ yarn install
 ```
 
-## Compile and run the project
+## Running the app
 
 ```bash
 # development
@@ -45,55 +48,118 @@ $ yarn run start:dev
 $ yarn run start:prod
 ```
 
-## Run tests
+## Test
 
 ```bash
 # unit tests
 $ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
 ```
 
-## Deployment
+## Technologies Used
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## [NestJS](https://github.com/nestjs/nest)
+![NestJS Logo](https://raw.githubusercontent.com/nestjs/docs/master/src/assets/logo-small.png)
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+NestJS is a progressive Node.js framework for building efficient, reliable, and scalable server-side applications.
 
-```bash
-$ yarn install -g mau
-$ mau deploy
-```
+---
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## [TypeScript](https://www.typescriptlang.org/)
+![TypeScript Logo](https://raw.githubusercontent.com/microsoft/TypeScript/main/logo/logo.png)
 
-## Resources
+TypeScript is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale.
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## [PostgreSQL](https://www.postgresql.org/)
+![PostgreSQL Logo](https://www.postgresql.org/media/img/about/pglogo.png)
 
-## Support
+PostgreSQL is a powerful, open-source object-relational database system with more than 15 years of active development.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+---
 
-## Stay in touch
+## [TypeORM](https://github.com/typeorm/typeorm)
+![TypeORM Logo](https://typeorm.io/img/typeorm_logo.png)
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+TypeORM is an ORM for TypeScript and JavaScript (ES7, ES6, ES5). It supports many databases, including PostgreSQL.
+
+
+## Key Features
+- User authentication and authorization using JWT.
+- Secure money transfers between users.
+- Deposit funds into user accounts.
+- Retrieval of transaction history with filtering and pagination.
+- Caching mechanism for improved performance on balance retrieval.
+- Detailed API documentation with Swagger for easy integration.
+
+## Technologies Used
+- **Backend**: NestJS, TypeScript
+- **Database**: PostgreSQL
+- **ORM**: TypeORM
+- **Caching**: In-memory caching (e.g., Redis)
+- **Authentication**: JWT (JSON Web Tokens)
+- **Documentation**: Swagger
+
+## System Structure
+The application is organized into the following core modules:
+
+1. **Auth Module**: Handles user authentication, registration, and token management.
+2. **User Module**: Manages user profiles and balances.
+3. **Transaction Module**: Facilitates deposits, transfers, and transaction history retrieval.
+
+---
+
+## API Endpoints
+
+### Authentication Endpoints
+- **POST /auth/login**
+  - Authenticate a user and return a JWT.
+- **POST /auth/signup**
+  - Register a new user.
+- **POST /auth/verify-account**
+  - Verify user account via OTP.
+- **POST /auth/reset-password**
+  - Initiate password reset for a user.
+
+### User Endpoints
+- **GET /users/balance**
+  - Retrieve the authenticated user's balance.
+- **GET /users/:id**
+  - Get user profile details by ID.
+
+### Transaction Endpoints
+- **POST /transfers**
+  - Initiate a money transfer between users.
+- **GET /transfers**
+  - List the authenticated user's transfers with pagination.
+- **POST /deposits**
+  - Deposit funds into a user's account.
+- **GET /transactions**
+  - Retrieve all transactions for a specific user with filtering options (by type, status, and date range).
+
+---
+
+## Error Handling
+The system provides comprehensive error handling, ensuring users receive informative messages for various error scenarios, such as not found resources, insufficient funds, and transaction locking issues.
+
+## Caching Mechanism
+A simple caching mechanism is implemented for user balances to enhance performance. If a user's balance is cached, it will be returned from the cache; otherwise, it will be fetched from the database and cached for 10 minutes.
+
+## Unit Testing
+Unit tests are written for critical business logic and all endpoints to ensure the system's robustness and reliability.
+
+## API Documentation
+API documentation is provided using Swagger, making it easy for developers to understand and integrate with the system.
+
+---
+
+# Author
+
+- **Name**: [R. O. Olatunji](https://larexx40.github.io/me/)
+- **LinkedIn**: [R Olatunji](https://www.linkedin.com/in/rokeebolatunji/)
+- **Email**: [rokeeb.olatunji@gmail.com](mailto:rokeeb.olatunji@gmail.com)
+
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Nest is [MIT licensed](LICENSE).
