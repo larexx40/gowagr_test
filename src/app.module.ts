@@ -6,9 +6,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TransactionsModule } from './transactions/transactions.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
+    CacheModule.register({
+      ttl: 60000, // Cache expiration time in milliseconds
+      max: 10, // Maximum number of items in cache
+      isGlobal: true
+    }),
     ConfigModule.forRoot({
       isGlobal: true, 
       // envFilePath: '.env',

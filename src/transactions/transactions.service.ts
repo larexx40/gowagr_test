@@ -1,10 +1,13 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository, EntityManager } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { TransactionStatus, TransactionType } from 'utils/enum';
 import { DepositDto, TransferDto } from './dto/transaction.dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+
 
 @Injectable()
 export class TransactionService {
@@ -14,7 +17,47 @@ export class TransactionService {
 
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
+
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) { }
+
+  /**
+   * Retrieves the user's balance, utilizing caching for improved performance.
+   * If the balance is cached, it is returned from the cache. If not, it fetches
+   * the balance from the database, caches it for 10 minutes, and then returns it.
+   *
+   * @param {string} userId - The unique identifier of the user.
+   * @returns {Promise<number>} The user's balance.
+   * @throws {NotFoundException} If the user is not found in the database.
+   */
+  async getUserBalance(userId: string): Promise<number> {
+    const cacheKey = `user_balance_${userId}`;
+
+    // Check if the balance is cached
+    const cachedBalance = await this.cacheManager.get<number>(cacheKey);
+    if (cachedBalance) {
+      console.log("Cache hit");
+      return cachedBalance; // Return cached balance
+    }
+
+    // If balance is not cached, fetch from database
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const balance = user.balance;
+
+    // Cache the balance for 10 mins (600000 milliseconds)
+    this.cacheUserBalance(userId, balance)
+
+    return balance;
+  }
+
+  private async cacheUserBalance(userId: string, balance: number){
+    const cacheKey = `user_balance_${userId}`;
+    // Cache the balance for 10 mins (600000 milliseconds)
+    await this.cacheManager.set(cacheKey, balance, 600000 );
+    return cacheKey;
+  }
 
   /**
    * Deposit an amount to a user's account and record a transaction
@@ -26,13 +69,9 @@ export class TransactionService {
   async deposit(userId: string, depositDto: DepositDto): Promise<Transaction> {
     const { amount } = depositDto;
 
-    // Check if user exists
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
-
     // Start a transaction block 
     //this will automatically rollback the entire transaction if any error occur.
-    return await this.transactionRepository.manager.transaction(async (entityManager: EntityManager) => {
+    const res =  await this.transactionRepository.manager.transaction(async (entityManager: EntityManager) => {
       // Lock the user row to prevent race conditions
       const lockedUser = await entityManager
         .createQueryBuilder(User, 'user')
@@ -58,9 +97,14 @@ export class TransactionService {
       transaction.type = TransactionType.DEPOSIT;
       transaction.status = TransactionStatus.SUCCESS
 
+      //cache user balance
+      this.cacheUserBalance(userId, lockedUser.balance)
+
       // Save the transaction
       return await entityManager.save(transaction);
     });
+
+    return res;
   }
 
   /**
@@ -97,7 +141,7 @@ export class TransactionService {
         .where('user.id = :id', { id: recipient.id })
         .getOne();
 
-        if(!lockedRecipient || !lockedSender) throw new BadRequestException("Cannot perform operation at the moment, please try again later.")
+      if(!lockedRecipient || !lockedSender) throw new BadRequestException("Cannot perform operation at the moment, please try again later.")
       if (lockedSender.balance < amount) throw new BadRequestException('Insufficient balance');
 
       // Deduct amount from sender
@@ -117,6 +161,11 @@ export class TransactionService {
       transaction.amount = amount;
       transaction.type = TransactionType.TRANSFER;
       transaction.status = TransactionStatus.SUCCESS
+
+      
+      //cache sender and receiver balance
+      this.cacheUserBalance(lockedSender.id, lockedSender.balance)
+      this.cacheUserBalance(lockedRecipient.id, lockedRecipient.balance)
 
       return await entityManager.save(transaction);
     });
@@ -157,6 +206,76 @@ export class TransactionService {
     if (transactionType) {
       queryBuilder.andWhere('transaction.type = :transactionType', { transactionType });
     }
+
+    // Optional filter by transaction staus (e.g., SUCCESS, FAILED)
+    if (transactionStatus) {
+      queryBuilder.andWhere('transaction.status = :transactionStatus', { transactionStatus });
+    }
+
+    // Optional date range filter
+    if (startDate && endDate) {
+      queryBuilder.andWhere('transaction.createdAt BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      });
+    } else if (startDate) {
+      queryBuilder.andWhere('transaction.createdAt >= :startDate', { startDate });
+    } else if (endDate) {
+      queryBuilder.andWhere('transaction.createdAt <= :endDate', { endDate });
+    }
+
+    // Get total transaction count before pagination
+    const totalCount = await queryBuilder.getCount();
+
+    // Apply pagination with limit and skip
+    const skip = (page - 1) * limit || 0;
+    console.log("SKip: ",skip)
+    queryBuilder
+      .orderBy('transaction.createdAt', 'DESC') // Order by latest transaction
+      .skip(skip) // Offset results based on page number
+      .take(limit); // Limit the number of results
+
+    const transactions = await queryBuilder.getMany();
+
+    // If no transactions are found, throw a 404 error
+    if (!transactions.length) throw new NotFoundException('No transactions found.');
+
+    // Return the paginated data and the total count
+    return {
+      data: transactions,
+      totalCount,
+      page,
+      perPage: limit
+    };
+  }
+
+   /**
+ * Retrieves all transferf transactions of a specific user with pagination, filtering by status, and date range.
+ * 
+ * @param {string} userId - The user ID (can be initiator or recipient of the transaction).
+ * @param {number} [page=1] - The page number for pagination.
+ * @param {number} [limit=10] - The number of transactions per page.
+ * @param {TransactionStatus} [transactionStatus] - The status of the transaction to filter by (e.g., SUCCESS, FAILED).
+ * @param {Date} [startDate] - The start date to filter transactions by creation date.
+ * @param {Date} [endDate] - The end date to filter transactions by creation date.
+ * @returns {Promise<{ data: Transaction[], totalCount: number, page: number, perPage: number }>} - The list of transactions, total count, and pagination information.
+ * @throws {NotFoundException} - Throws if no transactions are found for the user.
+ */
+  async getAllUserTransfers(
+    userId: string,
+    page: number,
+    limit: number,
+    transactionStatus: TransactionStatus,
+    startDate: Date,
+    endDate: Date
+  ): Promise<{ data: Transaction[], totalCount: number, page: number, perPage: number }> {
+
+    // Create query builder to handle complex filtering and pagination
+    const queryBuilder = this.transactionRepository.createQueryBuilder('transaction')
+      .andWhere('transaction.type = :transactionType', { transactionType: TransactionType.TRANSFER });
+
+    // Ensure the query checks transactions by userId or recipientId
+    queryBuilder.where('(transaction.initiator = :userId OR transaction.recipientId = :userId)', { userId });
 
     // Optional filter by transaction staus (e.g., SUCCESS, FAILED)
     if (transactionStatus) {

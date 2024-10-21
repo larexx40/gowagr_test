@@ -90,7 +90,6 @@ export class TransactionController {
 
   /**
    * Retrieves all transactions of a specific user with pagination and filtering.
-   * @param {string} userId - The user ID (inferred from the JWT token).
    * @param {number} [page=1] - The page number for pagination.
    * @param {number} [limit=10] - The number of transactions per page.
    * @param {TransactionType} [transactionType] - Type of transaction to filter.
@@ -136,6 +135,98 @@ export class TransactionController {
       totalCount: transactions.totalCount,
       page: transactions.page,
       perPage: transactions.perPage,
+    };
+  }
+
+  /**
+   * Retrieves all transfer transactions of a specific user with pagination and filtering.
+   * @param {number} [page=1] - The page number for pagination.
+   * @param {number} [limit=10] - The number of transactions per page.
+   * @param {TransactionStatus} [transactionStatus] - Status of the transaction to filter.
+   * @param {Date} [startDate] - Start date for filtering.
+   * @param {Date} [endDate] - End date for filtering.
+   * @returns {Promise<{ data: Transaction[], totalCount: number, page: number, perPage: number }>} - The list of transactions.
+   */
+  @Get()
+  @UseGuards(AuthGuard)
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'The page number for pagination' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'The number of transactions per page' })
+  @ApiQuery({ name: 'transactionStatus', required: false, type: String, enum: TransactionStatus, description: 'Status of the transaction to filter' })
+  @ApiQuery({ name: 'startDate', required: false, type: String, description: 'Start date for filtering (ISO format)' })
+  @ApiQuery({ name: 'endDate', required: false, type: String, description: 'End date for filtering (ISO format)' })
+  @ApiOperation({ summary: 'Get all transactions for a specific user' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of transfers retrieved successfully',
+    type: [Transaction],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No transactions found for this user',
+  })
+  async getAllUserTransfers(
+    @Req() req: RequestWithAuth,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('transactionStatus') transactionStatus?: TransactionStatus,
+    @Query('startDate') startDate?: Date,
+    @Query('endDate') endDate?: Date,
+  ): Promise<{ status: boolean; message: string; data: Transaction[], totalCount: number, page: number, perPage: number }> {
+    const userId = req.user.userId;
+    const transactions = await this.transactionService.getAllUserTransfers(userId, page = 1, limit = 10, transactionStatus, startDate, endDate);
+
+    return {
+      status: true,
+      message: "List of transactions retrieved successfully",
+      data: transactions.data,
+      totalCount: transactions.totalCount,
+      page: transactions.page,
+      perPage: transactions.perPage,
+    };
+  }
+
+  /**
+   * Retrieves the authenticated user's balance.
+   * Utilizes caching to optimize performance. I
+   *
+   * @param {RequestWithAuth} req - The authenticated user request containing userId.
+   * @returns {Promise<{ status: boolean, message: string, data: { balance: number } }>} 
+   * A response object containing the status, message, and user's balance.
+   * @throws {NotFoundException} If the user is not found.
+   */
+  @Get('balance')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Retrieve the authenticated user\'s balance' })
+  @ApiResponse({
+    status: 200,
+    description: 'User balance retrieved successfully',
+    schema: {
+      example: {
+        status: true,
+        message: 'Balance fetched successfully',
+        data: { balance: 1000.50 },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  async getUserBalance(@Req() req: RequestWithAuth): Promise<{
+    status: boolean;
+    message: string;
+    data: { balance: number };
+  }> {
+    const userId = req.user.userId;
+    
+    // Get user balance from the service
+    const balance = await this.transactionService.getUserBalance(userId);
+    console.log("Balance: ", balance)
+
+    return {
+      status: true,
+      message: 'Balance fetched successfully',
+      data: { balance },
     };
   }
 }

@@ -35,7 +35,7 @@ export class User {
   @Column({ default: false })
   isVerified: boolean;
 
-  @Column({ nullable: false, default: 0 })
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   balance: number;
 
   @Column({ nullable: true })
