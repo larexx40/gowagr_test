@@ -118,15 +118,15 @@ export class TransactionController {
   })
   async getAllUserTransactions(
     @Req() req: RequestWithAuth,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
     @Query('transactionType') transactionType?: TransactionType,
     @Query('transactionStatus') transactionStatus?: TransactionStatus,
     @Query('startDate') startDate?: Date,
     @Query('endDate') endDate?: Date,
   ): Promise<{ status: boolean; message: string; data: Transaction[], totalCount: number, page: number, perPage: number }> {
     const userId = req.user.userId;
-    const transactions = await this.transactionService.getAllUserTransactions(userId, page = 1, limit = 10, transactionType, transactionStatus, startDate, endDate);
+    const transactions = await this.transactionService.getAllUserTransactions(userId, page, limit, transactionType, transactionStatus, startDate, endDate);
 
     return {
       status: true,
@@ -166,14 +166,14 @@ export class TransactionController {
   })
   async getAllUserTransfers(
     @Req() req: RequestWithAuth,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
     @Query('transactionStatus') transactionStatus?: TransactionStatus,
     @Query('startDate') startDate?: Date,
     @Query('endDate') endDate?: Date,
   ): Promise<{ status: boolean; message: string; data: Transaction[], totalCount: number, page: number, perPage: number }> {
     const userId = req.user.userId;
-    const transactions = await this.transactionService.getAllUserTransfers(userId, page = 1, limit = 10, transactionStatus, startDate, endDate);
+    const transactions = await this.transactionService.getAllUserTransfers(userId, page, limit, transactionStatus, startDate, endDate);
 
     return {
       status: true,

@@ -171,6 +171,8 @@ export class TransactionService {
     endDate: Date
   ): Promise<{ data: Transaction[], totalCount: number, page: number, perPage: number }> {
 
+    
+    console.log("Limit:", limit)
     // Create query builder to handle complex filtering and pagination
     const queryBuilder = this.transactionRepository.createQueryBuilder('transaction');
 
