@@ -11,6 +11,10 @@ The Money Transfer System is a robust and secure application designed to facilit
 $ yarn install
 ```
 
+## Configuration
+
+Before running the application, create a .env file in the root directory of the project. You can use the .env.example file as a reference for the required environment variables.
+
 ## Running the app
 
 ```bash
@@ -88,36 +92,35 @@ The application is organized into the following core modules:
 
 ## API Endpoints
 
-### Authentication Endpoints
-- **POST /auth/login**
-  - Authenticate a user and return a JWT.
-- **POST /auth/signup**
+### Authentication Endpoints /auth
+- **POST /login**
+  - Authenticate a user and return JWT.
+- **POST /signup**
   - Register a new user.
-- **POST /auth/verify-account**
+- **POST /verify-account**
   - Verify user account via OTP.
-- **POST /auth/reset-password**
+- **POST /reset-password**
   - Initiate password reset for a user.
 
-### User Endpoints
-- **GET /users/balance**
+### User Endpoints /user
+- **GET /profile**
+  - Get authenticated user's profile.
+- **GET /balance**
   - Retrieve the authenticated user's balance.
-- **GET /users/:id**
-  - Get user profile details by ID.
+- **GET /users/:username**
+  - Get user with username.
 
-### Transaction Endpoints
-- **POST /transfers**
+### Transaction Endpoints /transactions
+- **POST /transfer**
   - Initiate a money transfer between users.
 - **GET /transfers**
   - List the authenticated user's transfers with pagination.
-- **POST /deposits**
+- **POST /deposit**
   - Deposit funds into a user's account.
 - **GET /transactions**
   - Retrieve all transactions for a specific user with filtering options (by type, status, and date range).
 
 ---
-
-## Error Handling
-The system provides comprehensive error handling, ensuring users receive informative messages for various error scenarios, such as not found resources, insufficient funds, and transaction locking issues.
 
 ## Caching Mechanism
 A simple caching mechanism is implemented for user balances to enhance performance. If a user's balance is cached, it will be returned from the cache; otherwise, it will be fetched from the database and cached for 10 minutes.
@@ -126,7 +129,7 @@ A simple caching mechanism is implemented for user balances to enhance performan
 Unit tests are written for critical business logic and all endpoints to ensure the system's robustness and reliability.
 
 ## API Documentation
-API documentation is provided using Swagger, making it easy for developers to understand and integrate with the system.
+API documentation is provided using Swagger and can be accessed at /api/docs, making it easy for developers to understand and integrate with the system.
 
 ---
 

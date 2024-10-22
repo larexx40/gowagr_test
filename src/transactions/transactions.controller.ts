@@ -147,14 +147,14 @@ export class TransactionController {
    * @param {Date} [endDate] - End date for filtering.
    * @returns {Promise<{ data: Transaction[], totalCount: number, page: number, perPage: number }>} - The list of transactions.
    */
-  @Get()
+  @Get('transfers')
   @UseGuards(AuthGuard)
   @ApiQuery({ name: 'page', required: false, type: Number, description: 'The page number for pagination' })
   @ApiQuery({ name: 'limit', required: false, type: Number, description: 'The number of transactions per page' })
   @ApiQuery({ name: 'transactionStatus', required: false, type: String, enum: TransactionStatus, description: 'Status of the transaction to filter' })
   @ApiQuery({ name: 'startDate', required: false, type: String, description: 'Start date for filtering (ISO format)' })
   @ApiQuery({ name: 'endDate', required: false, type: String, description: 'End date for filtering (ISO format)' })
-  @ApiOperation({ summary: 'Get all transactions for a specific user' })
+  @ApiOperation({ summary: 'Get all transfer for a specific user' })
   @ApiResponse({
     status: 200,
     description: 'List of transfers retrieved successfully',
