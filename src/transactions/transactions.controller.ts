@@ -4,8 +4,8 @@ import { DepositDto, TransferDto } from './dto/transaction.dto';
 import { Transaction } from './entities/transaction.entity';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { TransactionService } from './transactions.service';
-import { RequestWithAuth } from 'src/types/auth.type';
-import { TransactionStatus, TransactionType } from 'utils/enum';
+import { RequestWithAuth } from 'src/auth/types/auth.type';
+import { TransactionStatus, TransactionType } from 'src/utils/enum';
 ;
 
 @ApiTags('Transactions')

@@ -3,10 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository, EntityManager } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
-import { TransactionStatus, TransactionType } from 'utils/enum';
+import { TransactionStatus, TransactionType } from 'src/utils/enum';
 import { DepositDto, TransferDto } from './dto/transaction.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { toMiniProfile } from 'src/users/transformers/users.transform';
 
 
 @Injectable()
@@ -68,6 +69,7 @@ export class TransactionService {
    */
   async deposit(userId: string, depositDto: DepositDto): Promise<Transaction> {
     const { amount } = depositDto;
+    console.log("Amount: ", amount)
 
     // Start a transaction block 
     //this will automatically rollback the entire transaction if any error occur.
@@ -84,15 +86,19 @@ export class TransactionService {
       }
 
       // Update the user's balance
-      lockedUser.balance += amount;
+      console.log('Before saving user balance:', lockedUser.balance);
+      // Update the user's balance and ensure proper precision handling
+      const updatedBalance = parseFloat((Number(lockedUser.balance) + Number(amount)).toFixed(2));
+      lockedUser.balance = updatedBalance;
 
       // Save updated user balance and create a deposit transaction record for the user
       await entityManager.save(lockedUser);
+      console.log('After saving user balance:', lockedUser.balance);
 
       // Record the deposit transaction
       const transaction = new Transaction();
       transaction.initiatorId = lockedUser.id;
-      transaction.initiator= lockedUser;
+      transaction.initiator= toMiniProfile(lockedUser);
       transaction.amount = amount;
       transaction.type = TransactionType.DEPOSIT;
       transaction.status = TransactionStatus.SUCCESS
@@ -123,7 +129,7 @@ export class TransactionService {
 
     if (!sender) throw new NotFoundException('Sender not found');
     if (!recipient) throw new NotFoundException('Recipient not found');
-
+    if(sender.username === recipient.username) throw new BadRequestException("You cannot transfer to yourself")
 
     // Start a transaction block 
     //this will automatically rollback the entire transaction if any error occur.
@@ -145,27 +151,31 @@ export class TransactionService {
       if (lockedSender.balance < amount) throw new BadRequestException('Insufficient balance');
 
       // Deduct amount from sender
-      lockedSender.balance -= amount;
+      const senderBalance = parseFloat((Number(lockedSender.balance) - Number(amount)).toFixed(2));
+      lockedSender.balance = senderBalance;
       await entityManager.save(lockedSender);
 
       // Add amount to recipient
-      lockedRecipient.balance += amount;
+      const receiverBalance = parseFloat((Number(lockedRecipient.balance) + Number(amount)).toFixed(2));
+      lockedRecipient.balance =  receiverBalance;
       await entityManager.save(lockedRecipient);
 
       // Record the transaction
       const transaction = new Transaction();
       transaction.initiatorId = sender.id;
-      transaction.initiator = sender;
+      transaction.initiator= toMiniProfile(sender);
       transaction.recipientId = recipient.id;
-      transaction.recipient = recipient;
+      transaction.recipient= toMiniProfile(recipient);
       transaction.amount = amount;
       transaction.type = TransactionType.TRANSFER;
       transaction.status = TransactionStatus.SUCCESS
 
       
       //cache sender and receiver balance
-      this.cacheUserBalance(lockedSender.id, lockedSender.balance)
-      this.cacheUserBalance(lockedRecipient.id, lockedRecipient.balance)
+      console.log("Send Balance: ", lockedSender.balance)
+      console.log("Receiv Balance: ", lockedRecipient.balance)
+      this.cacheUserBalance(lockedSender.id, senderBalance)
+      this.cacheUserBalance(lockedRecipient.id, receiverBalance)
 
       return await entityManager.save(transaction);
     });

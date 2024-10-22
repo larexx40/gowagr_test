@@ -3,7 +3,7 @@ import { UsersService } from './users.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UpdateProfileDto } from './dto/user.dto';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { RequestWithAuth } from 'src/types/auth.type';
+import { RequestWithAuth } from 'src/auth/types/auth.type';
 
 /**
  * UsersController handles all user-related operations.

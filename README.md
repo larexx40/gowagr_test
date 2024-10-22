@@ -73,7 +73,7 @@ TypeORM is an ORM for TypeScript and JavaScript (ES7, ES6, ES5). It supports man
 - **Backend**: NestJS, TypeScript
 - **Database**: PostgreSQL
 - **ORM**: TypeORM
-- **Caching**: In-memory caching (e.g., Redis)
+- **Caching**: In-memory caching
 - **Authentication**: JWT (JSON Web Tokens)
 - **Documentation**: Swagger
 

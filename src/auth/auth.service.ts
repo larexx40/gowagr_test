@@ -2,8 +2,8 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { AuthRepository } from './auth.repository';
 import { LoginDto, SignupDto, VerifyAccountDto, ResetPasswordDto, RegenerateTokenDto, ForgotPassword, SendOtpDto } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
-import { generateOtp, otpExpired } from 'utils/helpers';
-import { AuthTokenPayload } from 'src/types/auth.type';
+import { generateOtp, otpExpired } from 'src/utils/helpers';
+import { AuthTokenPayload } from 'src/auth/types/auth.type';
 import * as jwt from 'jsonwebtoken';
 import { User } from 'src/users/entities/user.entity';
 
@@ -105,8 +105,8 @@ export class AuthService {
     if (user.isVerified) throw new BadRequestException("Account already verified");
 
     // Validate the OTP and expire time
-    if (user.verificationOtp !== otp) throw new BadRequestException("Invalid OTP");
     if (otpExpired(user.otpExpiresIn)) throw new BadRequestException("OTP Expired.");
+    if (user.verificationOtp !== otp) throw new BadRequestException("Invalid OTP");
 
     const updatedUser = await this.authRepository.updateUserData(user.id, {
       isVerified: true,
@@ -243,10 +243,15 @@ export class AuthService {
     const user = await this.authRepository.findByEmail(email);
     if (!user) throw new NotFoundException("Account with email not found");
 
-    // Validate the OTP and expire time
-    if (user.passwordResetOtp !== otp) throw new BadRequestException("Invalid OTP");
-    if (otpExpired(user.passwordResetOtpExpiresIn)) throw new BadRequestException("OTP Expired.");
+    // Check if OTP matches
+    if (user.passwordResetOtp !== resetPasswordDto.otp) {
+        throw new BadRequestException('Invalid OTP');
+    }
 
+    // Check if OTP is expired
+    if (otpExpired(user.passwordResetOtpExpiresIn)) {
+        throw new BadRequestException('OTP Expired.');
+    }
     // Encrypt new password with bcrypt
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 

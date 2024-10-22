@@ -8,8 +8,11 @@ import {
     UpdateDateColumn,
     Index,
 } from 'typeorm';
-import { TransactionType, TransactionStatus } from 'utils/enum';
+import { TransactionType, TransactionStatus } from 'src/utils/enum';
 import { ApiProperty } from '@nestjs/swagger'; // Import ApiProperty
+import { Transform } from 'class-transformer';
+import { toMiniProfile } from 'src/users/transformers/users.transform';
+import { MiniProfile } from 'src/users/types/user.type';
 
 @Entity()
 export class Transaction {
@@ -21,11 +24,17 @@ export class Transaction {
     id: string;
 
     @ManyToOne(() => User, (user) => user.transactions)
+    @Transform(({ value }) => toMiniProfile(value))
     @ApiProperty({
         description: 'The user who initiated the transaction',
-        type: () => User,
+        type: Object,
+        example: {
+            firstname: 'John',
+            lastname: 'Doe',
+            username: 'johndoe',
+        }
     })
-    initiator: User;
+    initiator: MiniProfile;
 
     @Index()
     @Column()
@@ -36,12 +45,18 @@ export class Transaction {
     initiatorId: string;
 
     @ManyToOne(() => User, { nullable: true })
+    @Transform(({ value }) => toMiniProfile(value))
     @ApiProperty({
         description: 'The user who receives the transaction (optional)',
-        type: () => User,
-        nullable: true,
+        type: Object,
+        example: {
+            firstname: 'John',
+            lastname: 'Doe',
+            username: 'johndoe',
+        },
+        nullable: true
     })
-    recipient?: User;
+    recipient?: MiniProfile;
 
     @Index()
     @Column({ nullable: true })
