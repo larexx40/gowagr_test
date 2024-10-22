@@ -58,7 +58,9 @@ export class UsersController {
   @ApiResponse({ status: HttpStatus.OK, description: 'User fetched successfully' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Missing, invalid or expired OTP.' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not with username not found' })
-  async getUserByUsername(@Param('username') username: string) {
+  async getUserByUsername(
+    @Param('username') username: string
+  ) {
     const user = await this.usersService.getUserByUsername(username);
     return {
       status: true,
@@ -85,8 +87,11 @@ export class UsersController {
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Missing, invalid or expired OTP.' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'User with username already exist' })
-  async updateProfile(@Req() req, @Body() updateProfileDto: UpdateProfileDto) {
-    const userId = req.user.id;
+  async updateProfile(
+    @Req() req: RequestWithAuth, 
+    @Body() updateProfileDto: UpdateProfileDto
+  ) {
+    const userId = req.user.userId;
     const newUser = await this.usersService.updateProfile(userId, updateProfileDto);
     return {
       status: true,
