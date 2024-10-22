@@ -5,10 +5,13 @@ import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { NotFoundException, ConflictException } from '@nestjs/common';
 import { UpdateProfileDto } from './dto/user.dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 describe('UsersService', () => {
   let service: UsersService;
   let userRepository: Repository<User>;
+  let cacheManager: Cache;
 
   const mockUserRepository = {
     findOne: jest.fn(),
@@ -20,6 +23,11 @@ describe('UsersService', () => {
     username: 'john_doe',
     email: 'john@example.com',
   } as User;
+  
+  const mockCacheManager = {
+    get: jest.fn(),
+    set: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -29,6 +37,7 @@ describe('UsersService', () => {
           provide: getRepositoryToken(User),
           useValue: mockUserRepository,
         },
+        { provide: CACHE_MANAGER, useValue: mockCacheManager },
       ],
     }).compile();
 
@@ -67,6 +76,50 @@ describe('UsersService', () => {
       await expect(service.getUserByUsername('john_doe')).rejects.toThrow(NotFoundException);
     });
   });
+
+  describe('getUserBalance', () => {
+    it('should return balance from cache if available', async () => {
+      const userId = 'userid';
+      const cachedBalance = 1000.60;
+  
+      // Mock cache to return a cached value
+      mockCacheManager.get.mockResolvedValue(cachedBalance);
+  
+      const result = await service.getUserBalance(userId);
+  
+      expect(result).toEqual(cachedBalance);
+      expect(mockCacheManager.get).toHaveBeenCalledWith(`user_balance_${userId}`);
+      expect(mockUserRepository.findOne).not.toHaveBeenCalled(); // Ensure DB is not called
+    });
+  
+    it('should return balance from database and cache it if not cached', async () => {
+      const userId = 'userid';
+      const user = { id: userId, balance: 200 } as User;
+  
+      // Mock cache to return null (no cached value)
+      mockCacheManager.get.mockResolvedValue(null); 
+      // Mock user repository to return the user
+      mockUserRepository.findOne.mockResolvedValue(user);
+  
+      const result = await service.getUserBalance(userId);
+  
+      expect(result).toEqual(user.balance);
+      expect(mockUserRepository.findOne).toHaveBeenCalledWith({ where: { id: userId } });
+      expect(mockCacheManager.set).toHaveBeenCalledWith(`user_balance_${userId}`, user.balance, 600000);
+    });
+  
+    it('should throw NotFoundException if user is not found', async () => {
+      const userId = 'userid';
+  
+      // Mock cache to return null
+      mockCacheManager.get.mockResolvedValue(null); 
+      // Mock user repository to return null (no user found)
+      mockUserRepository.findOne.mockResolvedValue(null); 
+  
+      await expect(service.getUserBalance(userId)).rejects.toThrow(NotFoundException);
+    });
+  });
+  
 
   describe('updateProfile', () => {
     const updateProfileDto: UpdateProfileDto = {

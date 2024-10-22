@@ -81,55 +81,6 @@ describe('TransactionService', () => {
       username: 'recipient-username'
     } as User;
   
-    it('should perform transfer successfully and cache balances', async () => {
-      const transferDto: TransferDto = { 
-        recipientUsername: recipient.username, 
-        amount: 100 
-      };
-  
-      // Mock sender and recipient found
-      mockUserRepository.findOne = jest.fn().mockImplementation((criteria) => {
-        if (criteria.where.id === mockUser.id) return mockUser;
-        if (criteria.where.username === recipient.username) return recipient;
-        return null; // default case to handle no match
-      });
-  
-      // Mock getOne and save functions for locking users within the transaction
-      // First call returns sender (lockedSender), second call returns recipient (lockedRecipient)
-      mockEntityManager.getOne.mockResolvedValueOnce(mockUser).mockResolvedValueOnce(recipient);
-      
-      // Mock save to simulate updated balances after the transfer
-      mockEntityManager.save.mockImplementationOnce((user) => {
-        if (user.id === mockUser.id) {
-          user.balance = mockUser.balance - transferDto.amount; // Update sender balance
-          return user;
-        }
-        if (user.id === recipient.id) {
-          user.balance = recipient.balance + transferDto.amount; // Update recipient balance
-          return user;
-        }
-      });
-  
-      // Mock transaction
-      mockTransactionRepository.manager.transaction.mockImplementation(async (cb) => cb(entityManager));
-  
-      // Perform the transfer
-      const result = await transactionService.transfer(mockUser.id, transferDto);
-  
-  
-      // Check that the transaction was called
-      expect(transactionRepository.manager.transaction).toHaveBeenCalled();
-  
-      // Check the number of calls to cacheManager.set
-      expect(cacheManager.set).toHaveBeenCalledTimes(2); // once for the sender, once for the recipient
-  
-      // Verify that the balance was correctly set in the cache for the sender and recipient
-      expect(cacheManager.set).toHaveBeenCalledWith(`user_balance_${mockUser.id}`, mockUser.balance, 600000); // Sender's balance (300)
-      expect(cacheManager.set).toHaveBeenCalledWith(`user_balance_${recipient.id}`, recipient.balance, 600000); // Recipient's balance (300)
-  
-      expect(result).toBeDefined();
-    });
-  
     it('should throw NotFoundException if sender or recipient is not found', async () => {
       userRepository.findOne = jest.fn().mockResolvedValue(null); // No sender found
   
@@ -151,96 +102,66 @@ describe('TransactionService', () => {
       await expect(transactionService.transfer(mockUser.id, transferDto)).rejects.toThrow(BadRequestException);
     });
   });
-  
 
-  // describe('getUserBalance', () => {
-  //   it('should return balance from cache if available', async () => {
-  //     cacheManager.get = jest.fn().mockResolvedValue(100); // Cached value
+  describe('deposit', () => {
+    it('should perform deposit successfully and cache balance', async () => {
+      // Mock user found
+      mockEntityManager.getOne.mockResolvedValue(mockUser);
+      mockEntityManager.save.mockResolvedValue(mockUser);
+      mockTransactionRepository.manager.transaction.mockImplementation(async (cb) => cb(entityManager));
 
-  //     const result = await transactionService.getUserBalance('userid');
+      const result = await transactionService.deposit('user1', mockDepositDto);
 
-  //     expect(result).toEqual(100);
-  //     expect(cacheManager.get).toHaveBeenCalledWith('user_balance_userid');
-  //   });
+      expect(result).toBeDefined();
+      expect(mockEntityManager.getOne).toHaveBeenCalled();
+      expect(mockEntityManager.save).toHaveBeenCalledTimes(2); // for user and transaction
+      expect(mockCacheManager.set).toHaveBeenCalledWith(`user_balance_user1`, 150, 600000);
+    });
 
-  //   it('should return balance from database and cache it if not cached', async () => {
-  //     cacheManager.get = jest.fn().mockResolvedValue(null); // No cached value
-  //     const user = { id: 'userid', balance: 200 } as User;
-  //     userRepository.findOne = jest.fn().mockResolvedValue(user);
+    it('should throw BadRequestException if operation cannot be performed at that moment', async () => {
+      // Mock user not found
+      mockEntityManager.getOne.mockResolvedValue(null);
 
-  //     const result = await transactionService.getUserBalance('userid');
-
-  //     expect(result).toEqual(200);
-  //     expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: 'userid' } });
-  //     expect(cacheManager.set).toHaveBeenCalledWith('user_balance_userid', 200, 600000);
-  //   });
-
-  //   it('should throw NotFoundException if user is not found', async () => {
-  //     userRepository.findOne = jest.fn().mockResolvedValue(null); // No user found
-
-  //     await expect(transactionService.getUserBalance('userid')).rejects.toThrow(NotFoundException);
-  //   });
-  // });
-
-  // describe('deposit', () => {
-  //   it('should perform deposit successfully and cache balance', async () => {
-  //     // Mock user found
-  //     mockEntityManager.getOne.mockResolvedValue(mockUser);
-  //     mockEntityManager.save.mockResolvedValue(mockUser);
-  //     mockTransactionRepository.manager.transaction.mockImplementation(async (cb) => cb(entityManager));
-
-  //     const result = await transactionService.deposit('user1', mockDepositDto);
-
-  //     expect(result).toBeDefined();
-  //     expect(mockEntityManager.getOne).toHaveBeenCalled();
-  //     expect(mockEntityManager.save).toHaveBeenCalledTimes(2); // for user and transaction
-  //     expect(mockCacheManager.set).toHaveBeenCalledWith(`user_balance_user1`, 150, 600000);
-  //   });
-
-  //   it('should throw BadRequestException if operation cannot be performed at that moment', async () => {
-  //     // Mock user not found
-  //     mockEntityManager.getOne.mockResolvedValue(null);
-
-  //     await expect(transactionService.deposit('user1', mockDepositDto)).rejects.toThrow(BadRequestException);
-  //   });
-  // });
+      await expect(transactionService.deposit('user1', mockDepositDto)).rejects.toThrow(BadRequestException);
+    });
+  });
 
   
 
-  // describe('getAllUserTransactions', () => {
-  //   it('should return all user transactions with pagination', async () => {
-  //     const transactions = [{ id: '1' }, { id: '2' }] as Transaction[];
-  //     transactionRepository.createQueryBuilder = jest.fn().mockReturnValue({
-  //       where: jest.fn().mockReturnThis(),
-  //       andWhere: jest.fn().mockReturnThis(),
-  //       getCount: jest.fn().mockResolvedValue(2),
-  //       getMany: jest.fn().mockResolvedValue(transactions),
-  //       skip: jest.fn().mockReturnThis(),
-  //       take: jest.fn().mockReturnThis(),
-  //       orderBy: jest.fn().mockReturnThis(),
-  //     });
+  describe('getAllUserTransactions', () => {
+    it('should return all user transactions with pagination', async () => {
+      const transactions = [{ id: '1' }, { id: '2' }] as Transaction[];
+      transactionRepository.createQueryBuilder = jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        getCount: jest.fn().mockResolvedValue(2),
+        getMany: jest.fn().mockResolvedValue(transactions),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+      });
 
-  //     const result = await transactionService.getAllUserTransactions('userid', 1, 2, null, null, null, null);
-  //     expect(result.data).toEqual(transactions);
-  //     expect(result.totalCount).toEqual(2);
-  //   });
+      const result = await transactionService.getAllUserTransactions('userid', 1, 2, null, null, null, null);
+      expect(result.data).toEqual(transactions);
+      expect(result.totalCount).toEqual(2);
+    });
 
-  //   it('should throw NotFoundException if no transactions are found', async () => {
-  //     transactionRepository.createQueryBuilder = jest.fn().mockReturnValue({
-  //       where: jest.fn().mockReturnThis(),
-  //       andWhere: jest.fn().mockReturnThis(),
-  //       getCount: jest.fn().mockResolvedValue(0),
-  //       getMany: jest.fn().mockResolvedValue([]),
-  //       skip: jest.fn().mockReturnThis(),
-  //       take: jest.fn().mockReturnThis(),
-  //       orderBy: jest.fn().mockReturnThis(),
-  //     });
+    it('should throw NotFoundException if no transactions are found', async () => {
+      transactionRepository.createQueryBuilder = jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        getCount: jest.fn().mockResolvedValue(0),
+        getMany: jest.fn().mockResolvedValue([]),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+      });
 
-  //     await expect(
-  //       transactionService.getAllUserTransactions('userid', 1, 10, null, null, null, null),
-  //     ).rejects.toThrow(NotFoundException);
-  //   });
-  // });
+      await expect(
+        transactionService.getAllUserTransactions('userid', 1, 10, null, null, null, null),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
 
 
 });

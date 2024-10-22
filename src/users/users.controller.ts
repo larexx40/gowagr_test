@@ -45,6 +45,51 @@ export class UsersController {
   }
 
   /**
+   * Retrieves the authenticated user's balance.
+   * Utilizes caching to optimize performance. I
+   *
+   * @param {RequestWithAuth} req - The authenticated user request containing userId.
+   * @returns {Promise<{ status: boolean, message: string, data: { balance: number } }>} 
+   * A response object containing the status, message, and user's balance.
+   * @throws {NotFoundException} If the user is not found.
+   */
+  @Get('balance')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Retrieve the authenticated user\'s balance' })
+  @ApiResponse({
+    status: 200,
+    description: 'User balance retrieved successfully',
+    schema: {
+      example: {
+        status: true,
+        message: 'Balance fetched successfully',
+        data: { balance: 1000.50 },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  async getUserBalance(@Req() req: RequestWithAuth): Promise<{
+    status: boolean;
+    message: string;
+    data: { balance: number };
+  }> {
+    const userId = req.user.userId;
+    
+    // Get user balance from the service
+    const balance = await this.usersService.getUserBalance(userId);
+    console.log("Balance: ", balance)
+
+    return {
+      status: true,
+      message: 'Balance fetched successfully',
+      data: { balance },
+    };
+  }
+
+  /**
    * Retrieves a user by their username.
    * 
    * @param username - The username of the user to retrieve.

@@ -22,37 +22,6 @@ export class TransactionService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) { }
 
-  /**
-   * Retrieves the user's balance, utilizing caching for improved performance.
-   * If the balance is cached, it is returned from the cache. If not, it fetches
-   * the balance from the database, caches it for 10 minutes, and then returns it.
-   *
-   * @param {string} userId - The unique identifier of the user.
-   * @returns {Promise<number>} The user's balance.
-   * @throws {NotFoundException} If the user is not found in the database.
-   */
-  async getUserBalance(userId: string): Promise<number> {
-    const cacheKey = `user_balance_${userId}`;
-
-    // Check if the balance is cached
-    const cachedBalance = await this.cacheManager.get<number>(cacheKey);
-    if (cachedBalance) {
-      console.log("Cache hit");
-      return cachedBalance; // Return cached balance
-    }
-
-    // If balance is not cached, fetch from database
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
-
-    const balance = user.balance;
-
-    // Cache the balance for 10 mins (600000 milliseconds)
-    this.cacheUserBalance(userId, balance)
-
-    return balance;
-  }
-
   private async cacheUserBalance(userId: string, balance: number){
     const cacheKey = `user_balance_${userId}`;
     // Cache the balance for 10 mins (600000 milliseconds)
@@ -69,7 +38,6 @@ export class TransactionService {
    */
   async deposit(userId: string, depositDto: DepositDto): Promise<Transaction> {
     const { amount } = depositDto;
-    console.log("Amount: ", amount)
 
     // Start a transaction block 
     //this will automatically rollback the entire transaction if any error occur.
@@ -85,15 +53,12 @@ export class TransactionService {
         throw new BadRequestException('Cannot perform operation at the moment, please try again later.');
       }
 
-      // Update the user's balance
-      console.log('Before saving user balance:', lockedUser.balance);
       // Update the user's balance and ensure proper precision handling
       const updatedBalance = parseFloat((Number(lockedUser.balance) + Number(amount)).toFixed(2));
       lockedUser.balance = updatedBalance;
 
       // Save updated user balance and create a deposit transaction record for the user
       await entityManager.save(lockedUser);
-      console.log('After saving user balance:', lockedUser.balance);
 
       // Record the deposit transaction
       const transaction = new Transaction();
@@ -239,7 +204,6 @@ export class TransactionService {
 
     // Apply pagination with limit and skip
     const skip = (page - 1) * limit || 0;
-    console.log("SKip: ",skip)
     queryBuilder
       .orderBy('transaction.createdAt', 'DESC') // Order by latest transaction
       .skip(skip) // Offset results based on page number
@@ -309,7 +273,6 @@ export class TransactionService {
 
     // Apply pagination with limit and skip
     const skip = (page - 1) * limit || 0;
-    console.log("SKip: ",skip)
     queryBuilder
       .orderBy('transaction.createdAt', 'DESC') // Order by latest transaction
       .skip(skip) // Offset results based on page number

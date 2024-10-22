@@ -14,7 +14,8 @@ describe('UsersController', () => {
   const user = { 
     id: userId, 
     username: 'testUser', 
-    email: 'test@example.com' 
+    email: 'test@example.com',
+    balance: 1000.50 
   } as any;
   const req: RequestWithAuth = { user: { userId } } as RequestWithAuth;
 
@@ -28,6 +29,15 @@ describe('UsersController', () => {
             getProfile: jest.fn(),
             getUserByUsername: jest.fn(),
             updateProfile: jest.fn(),
+            getUserBalance: jest.fn()
+          },
+        },
+        
+        {
+          provide: 'CACHE_MANAGER',
+          useValue: {
+            get: jest.fn(),
+            set: jest.fn(),
           },
         },
       ],
@@ -83,15 +93,11 @@ describe('UsersController', () => {
         ...user, 
         ...updateProfileDto 
       };
-  
-      console.log("new user data", updatedUser);
       
       // Mocking the request object
       const req: RequestWithAuth = {
         user: { userId: userId } // Ensure this is correctly set
       } as RequestWithAuth;
-  
-      console.log("Req id", req.user.userId); // This should log "user-id"
       
       // Mock the updateProfile method
       jest.spyOn(usersService, 'updateProfile').mockResolvedValue(updatedUser);
@@ -108,6 +114,22 @@ describe('UsersController', () => {
   
       // Ensure the service method was called with the correct arguments
       expect(usersService.updateProfile).toHaveBeenCalledWith(userId, updateProfileDto);
+    });
+  });
+
+  describe('getUserBalance', () => {
+    it('should return the user balance', async () => {
+      const balance = 1000.00;
+      jest.spyOn(usersService, 'getUserBalance').mockResolvedValue(balance);
+
+      const result = await usersController.getUserBalance(req);
+
+      expect(result).toEqual({
+        status: true,
+        message: "Balance fetched successfully",
+        data: {balance},
+      });
+      expect(usersService.getUserBalance).toHaveBeenCalledWith(userId);
     });
   });
   
