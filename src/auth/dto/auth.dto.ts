@@ -129,8 +129,8 @@ export class ResetPasswordDto {
         example: '123456',
     })
     @IsNotEmpty({ message: 'OTP is required' })
-    @IsNumberString({}, { message: 'OTP must be a valid number' })
-    @Length(6, 6, { message: 'OTP must be exactly 6 digits long' })
+    @IsNumber({}, { message: 'OTP must be a valid number' })
+    // @Length(6, 6, { message: 'OTP must be exactly 6 digits long' })
     otp?: number;
 }
 

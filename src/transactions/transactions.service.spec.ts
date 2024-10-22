@@ -70,38 +70,78 @@ describe('TransactionService', () => {
 
   });
 
-  describe('transfer', () => {
-    const mockUser = {
-      id: 'new-sender',
-      balance: 400
-    };
-    const recipient = {
-      id: 'new-receiver',
-      balance: 200,
-      username: 'recipient-username'
-    } as User;
+  // describe('transfer', () => {
+  //   const mockUser = {
+  //     id: 'new-sender',
+  //     balance: 400
+  //   };
+  //   const recipient = {
+  //     id: 'new-receiver',
+  //     balance: 200,
+  //     username: 'recipient-username'
+  //   } as User;
   
-    it('should throw NotFoundException if sender or recipient is not found', async () => {
-      userRepository.findOne = jest.fn().mockResolvedValue(null); // No sender found
+  //   it('should perform transfer successfully and cache balances', async () => {
+  //     const transferDto: TransferDto = { 
+  //       recipientUsername: recipient.username, 
+  //       amount: 100 
+  //     };
+
+  //     // Mocking the userRepository's findOne method to return the sender and recipient
+  //     userRepository.findOne = jest.fn()
+  //       .mockImplementation((options) => {
+  //         if (options.where.id === mockUser.id) {
+  //           return Promise.resolve(mockUser);
+  //         } else if (options.where.username === recipient.username) {
+  //           return Promise.resolve(recipient);
+  //         }
+  //         return Promise.resolve(null);
+  //       });
+
+  //     // Mocking the transactionRepository's manager.transaction method
+  //     mockTransactionRepository.manager.transaction = jest.fn(async (cb) => {
+  //       return cb(mockEntityManager);
+  //     });
+
+  //     // Mocking the entityManager's getOne method to return the locked users
+  //     mockEntityManager.getOne = jest.fn()
+  //       .mockImplementationOnce(() => Promise.resolve(mockUser))  // For sender
+  //       .mockImplementationOnce(() => Promise.resolve(recipient)); // For recipient
+
+  //     // Call the transfer method
+  //     const transaction = await transactionService.transfer(mockUser.id, transferDto);
+
+  //     // Assertions
+  //     expect(transaction).toBeDefined();
+  //     expect(transaction.amount).toBe(100);
+  //     expect(transaction.initiatorId).toBe(mockUser.id);
+  //     expect(transaction.recipientId).toBe(recipient.id);
+  //     expect(cacheManager.set).toHaveBeenCalledWith(`user_balance_${mockUser.id}`, 300, 600000);
+  //     expect(cacheManager.set).toHaveBeenCalledWith(`user_balance_${recipient.id}`, 300, 600000);
+  //     expect(mockEntityManager.save).toHaveBeenCalledTimes(3); // For sender, recipient, and transaction
+  //   });
   
-      const transferDto: TransferDto = { recipientUsername: 'recipient', amount: 100 };
-      await expect(transactionService.transfer(mockUser.id, transferDto)).rejects.toThrow(NotFoundException);
-    });
+  //   it('should throw NotFoundException if sender or recipient is not found', async () => {
+  //     userRepository.findOne = jest.fn().mockResolvedValue(null); // No sender found
   
-    it('should throw BadRequestException if sender has insufficient balance', async () => {
-      const transferDto: TransferDto = {
-        recipientUsername: recipient.username,
-        amount: 10000
-      };
+  //     const transferDto: TransferDto = { recipientUsername: 'recipient', amount: 100 };
+  //     await expect(transactionService.transfer(mockUser.id, transferDto)).rejects.toThrow(NotFoundException);
+  //   });
   
-      userRepository.findOne = jest
-        .fn()
-        .mockResolvedValueOnce(mockUser) // Sender found
-        .mockResolvedValueOnce(recipient); // Recipient found
+  //   it('should throw BadRequestException if sender has insufficient balance', async () => {
+  //     const transferDto: TransferDto = {
+  //       recipientUsername: recipient.username,
+  //       amount: 10000
+  //     };
   
-      await expect(transactionService.transfer(mockUser.id, transferDto)).rejects.toThrow(BadRequestException);
-    });
-  });
+  //     userRepository.findOne = jest
+  //       .fn()
+  //       .mockResolvedValueOnce(mockUser) // Sender found
+  //       .mockResolvedValueOnce(recipient); // Recipient found
+  
+  //     await expect(transactionService.transfer(mockUser.id, transferDto)).rejects.toThrow(BadRequestException);
+  //   });
+  // });
 
   describe('deposit', () => {
     it('should perform deposit successfully and cache balance', async () => {

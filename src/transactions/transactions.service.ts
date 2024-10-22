@@ -245,11 +245,11 @@ export class TransactionService {
   ): Promise<{ data: Transaction[], totalCount: number, page: number, perPage: number }> {
 
     // Create query builder to handle complex filtering and pagination
-    const queryBuilder = this.transactionRepository.createQueryBuilder('transaction')
-      .andWhere('transaction.type = :transactionType', { transactionType: TransactionType.TRANSFER });
+    const queryBuilder = this.transactionRepository.createQueryBuilder('transaction');
 
-    // Ensure the query checks transactions by userId or recipientId
-    queryBuilder.where('(transaction.initiator = :userId OR transaction.recipientId = :userId)', { userId });
+    // Ensure the query checks transactions by userId or recipientId and transactiontype = transfer
+    queryBuilder.where('(transaction.initiator = :userId OR transaction.recipientId = :userId)', { userId })
+    .andWhere('transaction.type = :transactionType', { transactionType: TransactionType.TRANSFER });
 
     // Optional filter by transaction staus (e.g., SUCCESS, FAILED)
     if (transactionStatus) {
