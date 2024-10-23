@@ -4,13 +4,6 @@
 
 The Money Transfer System is a robust and secure application designed to facilitate user authentication, fund transfers, and transaction management. Built with [Nest](https://github.com/nestjs/nest), [TypeScript](https://www.typescriptlang.org/), and [PostgreSQL](https://www.postgresql.org/).
 
-## Hosted API
-
-The Money Transfer System API is hosted on [Render](https://render.com).
-
-- **API URL**: [https://gowagr-test.onrender.com](https://gowagr-test.onrender.com)
-- **Swagger Documentation**: [https://gowagr-test.onrender.com/api/docs](https://gowagr-test.onrender.com/api/docs)
-
 
 ## Installation
 
@@ -56,28 +49,28 @@ $ docker-compose down
 
 ## Technologies Used
 
-## `<a href="https://github.com/nestjs/nest" target="_blank">Nest</a>`
+## [NestJS](https://github.com/nestjs/nest)
 <img src="https://docs.nestjs.com/assets/logo-small-gradient.svg" alt="NestJS Logo" width="120" />
 
 NestJS is a progressive Node.js framework for building efficient, reliable, and scalable server-side applications.
 
 ---
 
-## `<a href="https://www.typescriptlang.org/" target="_blank">TypeScripr</a>`
+## [TypeScript](https://www.typescriptlang.org/)
 <img src="https://static-production.npmjs.com/255a118f56f5346b97e56325a1217a16.svg" alt="TypeScript Logo" width="120" />
 
 TypeScript is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale.
 
 ---
 
-## `<a href="https://www.postgresql.org/" target="_blank">PostgreSQL</a>`
+## [PostgreSQL](https://www.postgresql.org/)
 <img src="https://www.postgresql.org/media/img/about/press/elephant.png" alt="PostgreSQL Logo" width="120" />
 
 PostgreSQL is a powerful, open-source object-relational database system with more than 15 years of active development.
 
 ---
 
-## `<a href="https://github.com/typeorm/typeorm" target="_blank">TypeORM</a>`
+## [TypeORM](https://github.com/typeorm/typeorm)
 <img src="https://raw.githubusercontent.com/typeorm/typeorm/master/resources/logo_big.png" alt="TypeORM Logo" width="120" />
 
 TypeORM is an ORM for TypeScript and JavaScript (ES7, ES6, ES5). It supports many databases, including PostgreSQL.
@@ -149,6 +142,12 @@ Unit tests are written for critical business logic and all endpoints to ensure t
 
 ## API Documentation
 API documentation is provided using Swagger and can be accessed at /api/docs, making it easy for developers to understand and integrate with the system.
+
+## Hosted API
+The Money Transfer System API is hosted on [Render](https://render.com).
+
+- **API URL**: [https://gowagr-test.onrender.com](https://gowagr-test.onrender.com)
+- **Swagger Documentation**: [https://gowagr-test.onrender.com/api/docs](https://gowagr-test.onrender.com/api/docs)
 
 ## TODO
 Implement mail sending functionality for send OTP to user's email. The OTP code will be returned in the user data.
