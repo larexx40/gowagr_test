@@ -25,6 +25,9 @@ async function bootstrap() {
   //The route to access Swagger UI
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(process.env.PORT ?? 3000);
+  // Ensure the app listens on 0.0.0.0 and uses the PORT environment variable for render to work
+  const port = process.env.PORT || 3000; 
+  await app.listen(port, '0.0.0.0');
+
 }
 bootstrap();
