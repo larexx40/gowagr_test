@@ -143,6 +143,13 @@ Unit tests are written for critical business logic and all endpoints to ensure t
 ## API Documentation
 API documentation is provided using Swagger and can be accessed at /api/docs, making it easy for developers to understand and integrate with the system.
 
+## Hosted API
+The Money Transfer System API is hosted on [Render](https://render.com).
+
+- **API URL**: [https://gowagr-test.onrender.com](https://gowagr-test.onrender.com)
+- **Swagger Documentation**: [https://gowagr-test.onrender.com/api/docs](https://gowagr-test.onrender.com/api/docs)
+
+
 ---
 
 # Author
