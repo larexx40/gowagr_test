@@ -8,16 +8,13 @@ WORKDIR /app
 RUN yarn global add @nestjs/cli
 
 # Copy the package.json and yarn.lock files
-COPY package.json yarn.lock ./
+COPY package.json yarn.lock ./ 
 
 # Install dependencies
 RUN yarn install --production
 
 # Copy the rest of the application files
 COPY . .
-
-# Copy the .env file
-COPY .env .env
 
 # Build the application
 RUN yarn build
