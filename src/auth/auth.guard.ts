@@ -6,9 +6,9 @@ import * as jwt from 'jsonwebtoken';
 export class AuthGuard implements CanActivate {
 
     async canActivate(context: ExecutionContext): Promise<boolean> {    
-        const request:RequestWithAuth = context.switchToHttp().getRequest();
+        const request = context.switchToHttp().getRequest();
         
-        const authorizationHeader = request?.headers['authorization'];
+        const authorizationHeader = request.headers?.['authorization'];
         if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
         throw new UnauthorizedException('Missing or invalid Authorization header');
         }

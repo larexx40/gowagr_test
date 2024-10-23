@@ -35,6 +35,18 @@ $ yarn run start:prod
 $ yarn run test
 ```
 
+## Docker Setup
+
+The Money Transfer System includes a Docker setup for easier development and deployment. Ensure you have Docker installed on your machine.
+
+```bash
+# build and start the containers
+$ docker-compose up --build
+
+# to stop the containers
+$ docker-compose down
+```
+
 ## Technologies Used
 
 ## [NestJS](https://github.com/nestjs/nest)
